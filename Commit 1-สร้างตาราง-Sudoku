@@ -1,0 +1,39 @@
+import tkinter as tk  # นำเข้าโมดูล tkinter สำหรับการสร้าง GUI
+import random  # นำเข้าโมดูล random เพื่อใช้ในการสุ่มค่า (ถ้าจำเป็น)
+
+class SudokuGame:  # สร้างคลาส SudokuGame
+    BOARD_SIZE = 9  # กำหนดขนาดของกระดาน Sudoku เป็น 9x9
+    SUBGRID_SIZE = 3  # กำหนดขนาดของกล่องย่อยเป็น 3x3
+
+    def __init__(self, master):  # ฟังก์ชันคอนสตรัคเตอร์ของคลาส
+        self.master = master  # เก็บอ้างอิงของหน้าต่างหลัก
+        self.master.title("Sudoku Grid")  # ตั้งชื่อหน้าต่างหลัก
+
+        # สร้าง canvas สำหรับวาดกริด
+        self.canvas = tk.Canvas(master, width=450, height=450)  # สร้าง canvas ขนาด 450x450
+        self.canvas.pack()  # แพ็ค canvas ลงในหน้าต่าง
+
+        self.create_grid()  # เรียกฟังก์ชันเพื่อสร้างกริด Sudoku
+        self.cells = self.create_input_fields()  # เรียกฟังก์ชันเพื่อสร้างฟิลด์ข้อมูล
+
+    def create_grid(self):  # ฟังก์ชันสำหรับสร้างกริด
+        # วาดเส้นกริด
+        for i in range(self.BOARD_SIZE + 1):  # ลูปสำหรับวาดเส้นแนวนอนและแนวตั้ง
+            line_width = 3 if i % self.SUBGRID_SIZE == 0 else 1  # กำหนดความกว้างของเส้น
+            self.canvas.create_line(0, i * 50, 450, i * 50, width=line_width)  # วาดเส้นแนวนอน
+            self.canvas.create_line(i * 50, 0, i * 50, 450, width=line_width)  # วาดเส้นแนวตั้ง
+
+    def create_input_fields(self):  # ฟังก์ชันสำหรับสร้างฟิลด์ข้อมูล
+        # สร้างฟิลด์ข้อมูลสำหรับกริด Sudoku
+        cells = [[tk.Entry(self.master, width=2, justify='center', font=('Arial', 18)) 
+                  for _ in range(self.BOARD_SIZE)] for _ in range(self.BOARD_SIZE)]  # สร้างฟิลด์ข้อมูลเป็นตาราง 9x9
+        for i in range(self.BOARD_SIZE):  # ลูปสำหรับแต่ละแถว
+            for j in range(self.BOARD_SIZE):  # ลูปสำหรับแต่ละคอลัมน์
+                cells[i][j].place(x=j * 50 + 5, y=i * 50 + 5,  # ตั้งตำแหน่งของฟิลด์ข้อมูล
+                                  width=40, height=40)  # กำหนดขนาดของฟิลด์ข้อมูล
+        return cells  # คืนค่าตารางฟิลด์ข้อมูล
+
+if __name__ == "__main__":  # ตรวจสอบว่าไฟล์ถูกเรียกใช้งานโดยตรง
+    root = tk.Tk()  # สร้างหน้าต่างหลัก
+    game = SudokuGame(root)  # สร้างอ็อบเจ็กต์ของคลาส SudokuGame
+    root.mainloop()  # เริ่มต้นลูปหลักของ Tkinter
