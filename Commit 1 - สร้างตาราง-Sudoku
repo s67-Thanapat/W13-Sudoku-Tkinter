@@ -154,6 +154,7 @@ class SudokuGame:
         user_input = [[int(self.cells[i][j].get() or '0') for j in range(self.BOARD_SIZE)] for i in range(self.BOARD_SIZE)]
         
         if self.check_solution(user_input):
+            self.highlight_correct(user_input)
             messagebox.showinfo("Correct!", "Your answer is correct!")
         else:
             self.highlight_incorrect(user_input)  # Highlight incorrect answers
@@ -169,6 +170,13 @@ class SudokuGame:
             for j in range(self.BOARD_SIZE):
                 if user_input[i][j] != self.solution[i][j] and user_input[i][j] != 0:
                     self.cells[i][j].config(bg='red')  # Highlight incorrect cells in red
+
+    def highlight_correct(self, user_input):
+        """Highlight cells that contain correct answers."""
+        for i in range(self.BOARD_SIZE):
+            for j in range(self.BOARD_SIZE):
+                if user_input[i][j] == self.solution[i][j]:
+                    self.cells[i][j].config(bg='green')  # Highlight correct cells in green
 
 if __name__ == "__main__":
     root = tk.Tk()
