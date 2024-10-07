@@ -17,13 +17,18 @@ class SudokuGame:
         self.create_grid()
         self.cells = self.create_input_fields()
         self.board = [[0 for _ in range(self.BOARD_SIZE)] for _ in range(self.BOARD_SIZE)]
+        self.solution = copy.deepcopy(self.board)
         self.fill_board(self.board)
-        self.remove_numbers_from_board(self.board)  # Remove numbers from the board for gameplay
+        self.remove_numbers_from_board(self.board)
         self.update_cells(self.board)
 
         # Button to submit the answer
         self.submit_button = tk.Button(master, text="Submit Answer", command=self.submit_answer)
         self.submit_button.pack()
+
+        # Button to reset the game
+        self.reset_button = tk.Button(master, text="Reset Game", command=self.reset_board)
+        self.reset_button.pack()
 
     def create_grid(self):
         for i in range(self.BOARD_SIZE + 1):
@@ -59,7 +64,7 @@ class SudokuGame:
                 for col in range(self.BOARD_SIZE):
                     if board[row][col] == 0:
                         nums = list(range(1, self.BOARD_SIZE + 1))
-                        random.shuffle(nums)  # Shuffle numbers to ensure randomness
+                        random.shuffle(nums)
                         for num in nums:
                             if is_valid(board, row, col, num):
                                 board[row][col] = num
@@ -78,7 +83,7 @@ class SudokuGame:
         while removed < num_to_remove:
             row = random.randint(0, self.BOARD_SIZE - 1)
             col = random.randint(0, self.BOARD_SIZE - 1)
-            if board[row][col] != 0:  # Only remove if the cell is not already empty
+            if board[row][col] != 0:
                 board[row][col] = 0
                 removed += 1
 
@@ -92,19 +97,34 @@ class SudokuGame:
                     self.cells[i][j].insert(0, str(board[i][j]))
                     self.cells[i][j].config(state='disabled', disabledforeground='black')
 
+    def reset_board(self):
+        """Reset the board and create a new Sudoku puzzle."""
+        self.board = [[0 for _ in range(self.BOARD_SIZE)] for _ in range(self.BOARD_SIZE)]
+        self.solution = copy.deepcopy(self.board)
+        self.fill_board(self.board)
+        self.remove_numbers_from_board(self.board)
+        self.update_cells(self.board)
+
     def submit_answer(self):
         """Check the player's answer against the solution."""
         user_input = [[int(self.cells[i][j].get() or '0') for j in range(self.BOARD_SIZE)] for i in range(self.BOARD_SIZE)]
+        
         if self.check_solution(user_input):
             tk.messagebox.showinfo("Correct!", "Your answer is correct!")
         else:
+            self.highlight_incorrect(user_input)  # Highlight incorrect answers
             tk.messagebox.showinfo("Incorrect", "Your answer is incorrect! Please try again.")
 
     def check_solution(self, user_input):
         """Compare user's input to the correct solution."""
-       
-       
-        return user_input == self.board
+        return user_input == self.solution
+
+    def highlight_incorrect(self, user_input):
+        """Highlight cells that contain incorrect answers."""
+        for i in range(self.BOARD_SIZE):
+            for j in range(self.BOARD_SIZE):
+                if user_input[i][j] != self.solution[i][j] and user_input[i][j] != 0:
+                    self.cells[i][j].config(bg='red')  # Highlight incorrect cells in red
 
 if __name__ == "__main__":
     root = tk.Tk()
