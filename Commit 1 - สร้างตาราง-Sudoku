@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import filedialog, messagebox
 import random
 import copy
 
@@ -29,6 +30,14 @@ class SudokuGame:
         # Button to reset the game
         self.reset_button = tk.Button(master, text="Reset Game", command=self.reset_board)
         self.reset_button.pack()
+
+        # Button to save the game
+        self.save_button = tk.Button(master, text="Save Game", command=self.save_game)
+        self.save_button.pack()
+
+        # Button to load the game
+        self.load_button = tk.Button(master, text="Load Game", command=self.load_game)
+        self.load_button.pack()
 
     def create_grid(self):
         for i in range(self.BOARD_SIZE + 1):
@@ -105,15 +114,50 @@ class SudokuGame:
         self.remove_numbers_from_board(self.board)
         self.update_cells(self.board)
 
+    def save_game(self):
+        """Save the current board state to a file."""
+        file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text Files", "*.txt")])
+        if file_path:
+            try:
+                with open(file_path, 'w') as f:
+                    for i in range(self.BOARD_SIZE):
+                        row = [self.cells[i][j].get() or '0' for j in range(self.BOARD_SIZE)]
+                        f.write(" ".join(row) + "\n")
+                messagebox.showinfo("Info", "Game saved successfully.")
+            except Exception as e:
+                messagebox.showerror("Error", f"Error saving the game: {str(e)}")
+
+    def load_game(self):
+        """Load a board state from a file."""
+        file_path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
+        if file_path:
+            try:
+                with open(file_path, 'r') as f:
+                    lines = f.readlines()
+                    board = []
+                    for line in lines:
+                        row = list(map(int, line.strip().split()))
+                        if len(row) != self.BOARD_SIZE:
+                            raise ValueError("Each row must have exactly 9 numbers.")
+                        board.append(row)
+
+                    if len(board) != self.BOARD_SIZE:
+                        raise ValueError("The board must have exactly 9 rows.")
+
+                    self.update_cells(board)
+                    messagebox.showinfo("Info", "Game loaded successfully.")
+            except Exception as e:
+                messagebox.showerror("Error", f"Error loading the game: {str(e)}")
+
     def submit_answer(self):
         """Check the player's answer against the solution."""
         user_input = [[int(self.cells[i][j].get() or '0') for j in range(self.BOARD_SIZE)] for i in range(self.BOARD_SIZE)]
         
         if self.check_solution(user_input):
-            tk.messagebox.showinfo("Correct!", "Your answer is correct!")
+            messagebox.showinfo("Correct!", "Your answer is correct!")
         else:
             self.highlight_incorrect(user_input)  # Highlight incorrect answers
-            tk.messagebox.showinfo("Incorrect", "Your answer is incorrect! Please try again.")
+            messagebox.showinfo("Incorrect", "Your answer is incorrect! Please try again.")
 
     def check_solution(self, user_input):
         """Compare user's input to the correct solution."""
